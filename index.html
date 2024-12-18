@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drum Machine</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #282c34;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #drum-machine {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #444;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+    #display {
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      font-size: 20px;
+      min-width: 200px;
+      text-align: center;
+      background-color: #333;
+    }
+    .drum-pad {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 80px;
+      height: 80px;
+      margin: 10px;
+      background-color: #666;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+      color: #fff;
+    }
+    .drum-pad:hover {
+      background-color: #888;
+    }
+    .drum-pad:active {
+      background-color: #aaa;
+    }
+    .pad-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/babel">
+    const sounds = [
+      { key: 'Q', sound: 'Heater 1', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3' },
+      { key: 'W', sound: 'Heater 2', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3' },
+      { key: 'E', sound: 'Heater 3', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3' },
+      { key: 'A', sound: 'Heater 4', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3' },
+      { key: 'S', sound: 'Clap', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3' },
+      { key: 'D', sound: 'Open-HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3' },
+      { key: 'Z', sound: "Kick-n'-Hat", url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3' },
+      { key: 'X', sound: 'Kick', url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3' },
+      { key: 'C', sound: 'Closed-HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3' },
+    ];
+
+    const DrumPad = ({ keyTrigger, clipId, url, playSound }) => {
+      const handleKeyPress = (event) => {
+        if (event.key.toUpperCase() === keyTrigger) {
+          playSound(keyTrigger, clipId);
+        }
+      };
+
+      React.useEffect(() => {
+        document.addEventListener('keydown', handleKeyPress);
+        return () => {
+          document.removeEventListener('keydown', handleKeyPress);
+        };
+      }, []);
+
+      return (
+        <div
+          className="drum-pad"
+          id={clipId}
+          onClick={() => playSound(keyTrigger, clipId)}
+        >
+          {keyTrigger}
+          <audio
+            className="clip"
+            id={keyTrigger}
+            src={url}
+          ></audio>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [display, setDisplay] = React.useState('Press a Key');
+
+      const playSound = (key, name) => {
+        const audio = document.getElementById(key);
+        audio.currentTime = 0;
+        audio.play();
+        setDisplay(name);
+      };
+
+      return (
+        <div id="drum-machine">
+          <div id="display">{display}</div>
+          <div className="pad-container">
+            {sounds.map((sound) => (
+              <DrumPad
+                key={sound.key}
+                keyTrigger={sound.key}
+                clipId={sound.sound}
+                url={sound.url}
+                playSound={playSound}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('app'));
+  </script>
+</body>
+</html>
